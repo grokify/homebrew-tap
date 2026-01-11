@@ -5,50 +5,50 @@
 class StructuredChangelog < Formula
   desc "CLI for canonical, deterministic changelogs using JSON IR"
   homepage "https://github.com/grokify/structured-changelog"
-  version "0.6.0"
+  version "0.7.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/grokify/structured-changelog/releases/download/v0.6.0/structured-changelog_0.6.0_darwin_amd64.tar.gz"
-      sha256 "dacdfccfb7ba82ca022fd275c30825cd7806ddd165f7c330cbb85d650b210758"
+      url "https://github.com/grokify/structured-changelog/releases/download/v0.7.0/structured-changelog_0.7.0_darwin_amd64.tar.gz"
+      sha256 "b975bd5333009810a8aaef44c64379b9ce427400ac87c079a0cc71e752f844a3"
 
       def install
-        bin.install "sclog"
-        bin.install_symlink "sclog" => "structured-changelog"
+        bin.install "schangelog"
+        bin.install_symlink "schangelog" => "structured-changelog"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/grokify/structured-changelog/releases/download/v0.6.0/structured-changelog_0.6.0_darwin_arm64.tar.gz"
-      sha256 "20251bd16975dd79184a8b5b85f8d0f28d5cf8c005450c61a3776df7a1e6ce15"
+      url "https://github.com/grokify/structured-changelog/releases/download/v0.7.0/structured-changelog_0.7.0_darwin_arm64.tar.gz"
+      sha256 "1ca85a02765ef17a22894743ec73ce5be1c7ff4407b9ca0d68994f8c973322e9"
 
       def install
-        bin.install "sclog"
-        bin.install_symlink "sclog" => "structured-changelog"
+        bin.install "schangelog"
+        bin.install_symlink "schangelog" => "structured-changelog"
       end
     end
   end
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/grokify/structured-changelog/releases/download/v0.6.0/structured-changelog_0.6.0_linux_amd64.tar.gz"
-      sha256 "055821724b9f7e9829e29f6f96968c0434d1582a44900e88db9ec6df5e60974b"
+      url "https://github.com/grokify/structured-changelog/releases/download/v0.7.0/structured-changelog_0.7.0_linux_amd64.tar.gz"
+      sha256 "95c390f1ef0cd9c4431dc27734e7a1a661066ac46336b3e247a89feaccb487f2"
       def install
-        bin.install "sclog"
-        bin.install_symlink "sclog" => "structured-changelog"
+        bin.install "schangelog"
+        bin.install_symlink "schangelog" => "structured-changelog"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/grokify/structured-changelog/releases/download/v0.6.0/structured-changelog_0.6.0_linux_arm64.tar.gz"
-      sha256 "456413a321806ddff49ace2037950404661359f775940fe3df8035e4238a7d0e"
+      url "https://github.com/grokify/structured-changelog/releases/download/v0.7.0/structured-changelog_0.7.0_linux_arm64.tar.gz"
+      sha256 "314db3620e59494c846c133175957a9a5bd79099baef29c53ff9a31a2945719d"
       def install
-        bin.install "sclog"
-        bin.install_symlink "sclog" => "structured-changelog"
+        bin.install "schangelog"
+        bin.install_symlink "schangelog" => "structured-changelog"
       end
     end
   end
 
   test do
-    system "#{bin}/sclog", "version"
+    system "#{bin}/schangelog", "version"
   end
 end

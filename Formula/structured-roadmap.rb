@@ -5,13 +5,13 @@
 class StructuredRoadmap < Formula
   desc "CLI for machine-readable project roadmaps using JSON IR"
   homepage "https://github.com/grokify/structured-roadmap"
-  version "0.2.0"
+  version "0.2.1"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.0/structured-roadmap_0.2.0_darwin_amd64.tar.gz"
-      sha256 "98b1a43451815d1dfa7105bc55aec1bc75227cf1dd2070fd78b497bc83d45780"
+      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.1/structured-roadmap_0.2.1_darwin_amd64.tar.gz"
+      sha256 "66fec35334cc95e7bf3dbed0aa29e117040863b40d5693c1777696bc743ab040"
 
       def install
         bin.install "sroadmap"
@@ -19,8 +19,8 @@ class StructuredRoadmap < Formula
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.0/structured-roadmap_0.2.0_darwin_arm64.tar.gz"
-      sha256 "4729d708e0d93e27dafecdc77c25beb0427547aa90422c2ef4202ce506ae718d"
+      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.1/structured-roadmap_0.2.1_darwin_arm64.tar.gz"
+      sha256 "ec57572f5e21dbfac3df8b89d0cf6baa72b13ce55241113186c28d0e701db679"
 
       def install
         bin.install "sroadmap"
@@ -31,16 +31,16 @@ class StructuredRoadmap < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.0/structured-roadmap_0.2.0_linux_amd64.tar.gz"
-      sha256 "34648b99a84e8f8273ba1d220fc92ac8ad9ec6e4099ea9b14e0c27c4dcbfcade"
+      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.1/structured-roadmap_0.2.1_linux_amd64.tar.gz"
+      sha256 "44604a58e361d011afff29b9f3c941b9dd5a46346c7d47438e55470db70200b9"
       def install
         bin.install "sroadmap"
         bin.install_symlink "sroadmap" => "structured-roadmap"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.0/structured-roadmap_0.2.0_linux_arm64.tar.gz"
-      sha256 "c89293e7ed48b4bbc02c436185990a39cda5b60bad0c1dabb54f6884e0355944"
+      url "https://github.com/grokify/structured-roadmap/releases/download/v0.2.1/structured-roadmap_0.2.1_linux_arm64.tar.gz"
+      sha256 "a610401b09523a551f84b5dcbfec4428dfa10a5b66696be51a3a3ca967363066"
       def install
         bin.install "sroadmap"
         bin.install_symlink "sroadmap" => "structured-roadmap"

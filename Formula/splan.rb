@@ -5,21 +5,21 @@
 class Splan < Formula
   desc "CLI for structured planning documents (PRD, MRD, TRD, OKR, V2MOM)"
   homepage "https://github.com/grokify/structured-plan"
-  version "0.6.0"
+  version "0.7.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/grokify/structured-plan/releases/download/v0.6.0/splan_0.6.0_darwin_amd64.tar.gz"
-      sha256 "8790ab7124fb7542d49f496aa2ad9852c009f3dea74c0a9e0e402fcb522e3685"
+      url "https://github.com/grokify/structured-plan/releases/download/v0.7.0/splan_0.7.0_darwin_amd64.tar.gz"
+      sha256 "f50d1e316ad52350ffefe304d9c3b16c0184a451c90556333f1417cc1aa763a4"
 
       def install
         bin.install "splan"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/grokify/structured-plan/releases/download/v0.6.0/splan_0.6.0_darwin_arm64.tar.gz"
-      sha256 "2c5d990de1125b9b87fcf3e451ce2d0e7ac1af4507ac33b9990b531fabcb1be2"
+      url "https://github.com/grokify/structured-plan/releases/download/v0.7.0/splan_0.7.0_darwin_arm64.tar.gz"
+      sha256 "ed8a520aeb2fb4b817f7a7e82442a4ef10507894186684ef66cc8160e31fbfa7"
 
       def install
         bin.install "splan"
@@ -29,15 +29,15 @@ class Splan < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/grokify/structured-plan/releases/download/v0.6.0/splan_0.6.0_linux_amd64.tar.gz"
-      sha256 "621e328bbfaaee3351a723323a879d2a76f10dec2b48d35bb6d212aed9abdf8c"
+      url "https://github.com/grokify/structured-plan/releases/download/v0.7.0/splan_0.7.0_linux_amd64.tar.gz"
+      sha256 "72790209ef9bc543064a3339c68ed1400689d81dd62f787b7a48ba39f039533c"
       def install
         bin.install "splan"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/grokify/structured-plan/releases/download/v0.6.0/splan_0.6.0_linux_arm64.tar.gz"
-      sha256 "97299deca5c8cddd3f5858d3da7e8110b4f75c6c8c9c5aec20e950bf1636497d"
+      url "https://github.com/grokify/structured-plan/releases/download/v0.7.0/splan_0.7.0_linux_arm64.tar.gz"
+      sha256 "eec0352ba15208659be69ec00b09fee9bb083978f07499b59d0661f8f97ed075"
       def install
         bin.install "splan"
       end

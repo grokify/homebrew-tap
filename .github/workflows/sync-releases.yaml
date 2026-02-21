@@ -21,17 +21,15 @@ jobs:
             desc: "CLI to scan git repositories for common issues"
             binary: gitscan
           - repo: grokify/structured-changelog
-            name: structured-changelog
+            name: schangelog
             archive_name: structured-changelog
             desc: "CLI for canonical, deterministic changelogs using JSON IR"
             binary: schangelog
-            symlink: structured-changelog
           - repo: grokify/structured-tasks
-            name: structured-tasks
+            name: stasks
             archive_name: structured-tasks
             desc: "CLI for machine-readable project task lists using JSON IR"
             binary: stasks
-            symlink: structured-tasks
           - repo: grokify/structured-plan
             name: splan
             archive_name: splan

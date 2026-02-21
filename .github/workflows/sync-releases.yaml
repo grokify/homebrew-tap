@@ -1,0 +1,198 @@
+name: Sync CLI Releases
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Every hour
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tool:
+          - repo: grokify/gitscan
+            name: gitscan
+            archive_name: gitscan
+            desc: "CLI to scan git repositories for common issues"
+            binary: gitscan
+          - repo: grokify/structured-changelog
+            name: structured-changelog
+            archive_name: structured-changelog
+            desc: "CLI for canonical, deterministic changelogs using JSON IR"
+            binary: schangelog
+            symlink: structured-changelog
+          - repo: grokify/structured-tasks
+            name: structured-tasks
+            archive_name: structured-tasks
+            desc: "CLI for machine-readable project task lists using JSON IR"
+            binary: stasks
+            symlink: structured-tasks
+          - repo: grokify/structured-plan
+            name: splan
+            archive_name: splan
+            desc: "CLI for structured planning documents (PRD, MRD, TRD, OKR, V2MOM)"
+            binary: splan
+          - repo: grokify/schemalint
+            name: schemalint
+            archive_name: schemalint
+            desc: "JSON Schema linter and generator for static type compatibility"
+            binary: schemalint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for new release
+        id: check
+        env:
+          TOOL_REPO: ${{ matrix.tool.repo }}
+          TOOL_NAME: ${{ matrix.tool.name }}
+        run: |
+          # Get latest release tag
+          LATEST=$(curl -s "https://api.github.com/repos/${TOOL_REPO}/releases/latest" | jq -r .tag_name)
+          echo "Latest release: $LATEST"
+
+          if [ "$LATEST" = "null" ] || [ -z "$LATEST" ]; then
+            echo "No release found for ${TOOL_REPO}"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract version without 'v' prefix
+          VERSION="${LATEST#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$LATEST" >> $GITHUB_OUTPUT
+
+          # Check current formula version
+          FORMULA_FILE="Formula/${TOOL_NAME}.rb"
+          if [ -f "$FORMULA_FILE" ]; then
+            CURRENT=$(grep -oP 'version "\K[^"]+' "$FORMULA_FILE" || echo "0.0.0")
+            echo "Current formula version: $CURRENT"
+            if [ "$VERSION" = "$CURRENT" ]; then
+              echo "Already up to date"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Download checksums
+        if: steps.check.outputs.skip != 'true'
+        env:
+          TOOL_REPO: ${{ matrix.tool.repo }}
+          TAG: ${{ steps.check.outputs.tag }}
+        run: |
+          curl -sL "https://github.com/${TOOL_REPO}/releases/download/${TAG}/checksums.txt" -o checksums.txt
+          cat checksums.txt
+
+      - name: Generate formula
+        if: steps.check.outputs.skip != 'true'
+        env:
+          TOOL_REPO: ${{ matrix.tool.repo }}
+          TOOL_NAME: ${{ matrix.tool.name }}
+          TOOL_ARCHIVE_NAME: ${{ matrix.tool.archive_name }}
+          TOOL_DESC: ${{ matrix.tool.desc }}
+          TOOL_BINARY: ${{ matrix.tool.binary }}
+          TOOL_SYMLINK: ${{ matrix.tool.symlink }}
+          VERSION: ${{ steps.check.outputs.version }}
+          TAG: ${{ steps.check.outputs.tag }}
+        run: |
+          # Extract SHA256 for each platform
+          SHA_DARWIN_AMD64=$(grep "_darwin_amd64.tar.gz" checksums.txt | awk '{print $1}')
+          SHA_DARWIN_ARM64=$(grep "_darwin_arm64.tar.gz" checksums.txt | awk '{print $1}')
+          SHA_LINUX_AMD64=$(grep "_linux_amd64.tar.gz" checksums.txt | awk '{print $1}')
+          SHA_LINUX_ARM64=$(grep "_linux_arm64.tar.gz" checksums.txt | awk '{print $1}')
+
+          # Build install command
+          INSTALL_CMD="bin.install \"${TOOL_BINARY}\""
+          if [ -n "$TOOL_SYMLINK" ]; then
+            INSTALL_CMD="${INSTALL_CMD}
+        bin.install_symlink \"${TOOL_BINARY}\" => \"${TOOL_SYMLINK}\""
+          fi
+
+          # Convert tool name to Ruby class name (kebab-case to PascalCase)
+          CLASS_NAME=$(echo "$TOOL_NAME" | sed -r 's/(^|-)(\w)/\U\2/g')
+
+          # Generate formula
+          cat > "Formula/${TOOL_NAME}.rb" << EOF
+          # typed: false
+          # frozen_string_literal: true
+
+          class ${CLASS_NAME} < Formula
+            desc "${TOOL_DESC}"
+            homepage "https://github.com/${TOOL_REPO}"
+            version "${VERSION}"
+            license "MIT"
+
+            on_macos do
+              if Hardware::CPU.intel?
+                url "https://github.com/${TOOL_REPO}/releases/download/${TAG}/${TOOL_ARCHIVE_NAME}_${VERSION}_darwin_amd64.tar.gz"
+                sha256 "${SHA_DARWIN_AMD64}"
+
+                def install
+                  ${INSTALL_CMD}
+                end
+              end
+              if Hardware::CPU.arm?
+                url "https://github.com/${TOOL_REPO}/releases/download/${TAG}/${TOOL_ARCHIVE_NAME}_${VERSION}_darwin_arm64.tar.gz"
+                sha256 "${SHA_DARWIN_ARM64}"
+
+                def install
+                  ${INSTALL_CMD}
+                end
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
+                url "https://github.com/${TOOL_REPO}/releases/download/${TAG}/${TOOL_ARCHIVE_NAME}_${VERSION}_linux_amd64.tar.gz"
+                sha256 "${SHA_LINUX_AMD64}"
+                def install
+                  ${INSTALL_CMD}
+                end
+              end
+              if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+                url "https://github.com/${TOOL_REPO}/releases/download/${TAG}/${TOOL_ARCHIVE_NAME}_${VERSION}_linux_arm64.tar.gz"
+                sha256 "${SHA_LINUX_ARM64}"
+                def install
+                  ${INSTALL_CMD}
+                end
+              end
+            end
+
+            test do
+              system "#{bin}/${TOOL_BINARY}", "--version"
+            end
+          end
+          EOF
+
+          # Remove leading spaces from heredoc
+          sed -i 's/^          //' "Formula/${TOOL_NAME}.rb"
+
+          echo "Generated Formula/${TOOL_NAME}.rb"
+          cat "Formula/${TOOL_NAME}.rb"
+
+      - name: Commit and push
+        if: steps.check.outputs.skip != 'true'
+        env:
+          TOOL_NAME: ${{ matrix.tool.name }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Pull latest changes to avoid conflicts from parallel jobs
+          git pull --rebase origin main || true
+
+          git add "Formula/${TOOL_NAME}.rb"
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "feat(${TOOL_NAME}): update to v${VERSION}"
+            git push
+          fi
